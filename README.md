@@ -1,1 +1,2 @@
-# Ride_Buddy
+# RideBuddy
+Fullstack website
