@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require("../middleware/verifyToken");
+
 const {
   createTrip,
   getTrips,
   joinTrip,
   unjoinTrip,
+  deleteTrip, // 🆕 Importera
 } = require("../controllers/tripController");
-const verifyToken = require("../middleware/verifyToken");
 
-// All routes below require the user to be logged in
-router.post("/", verifyToken, createTrip); // Create trip route
-router.get("/", verifyToken, getTrips); // Get all trips route
-router.patch("/:id/join", verifyToken, joinTrip); // Join trip route
+// Routes
+router.post("/", verifyToken, createTrip);
+router.get("/", verifyToken, getTrips);
+router.patch("/:id/join", verifyToken, joinTrip);
 router.patch("/:id/unjoin", verifyToken, unjoinTrip);
+router.delete("/:id", verifyToken, deleteTrip); // 🆕 Delete route
 
 module.exports = router;

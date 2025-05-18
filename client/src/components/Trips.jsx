@@ -5,85 +5,137 @@ export default function Trips() {
   const [trips, setTrips] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/trips", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchTrips = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/trips", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch trips");
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error("Trips data is not a valid array");
+        }
+
         setTrips(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching trips:", error);
-        setErrorMessage("Error fetching trips.");
-      });
+      } catch (error) {
+        console.error("Error fetching trips:", error.message);
+        setErrorMessage(error.message);
+      }
+    };
+
+    fetchTrips();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    navigate("/login");
+  const getUserIdFromToken = () => {
+    try {
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      return decoded.id;
+    } catch (err) {
+      return null;
+    }
   };
 
-  const handleJoin = async (tripId) => {
-    const response = await fetch(
-      `http://localhost:3000/api/trips/${tripId}/join`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  const userId = getUserIdFromToken();
 
-    const data = await response.json();
-    if (data.success) {
-      alert("Successfully joined the trip!");
-      setTrips((prevTrips) =>
-        prevTrips.map((trip) =>
-          trip._id === tripId ? { ...trip, joined: true } : trip
-        )
+  const handleJoin = async (tripId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/trips/${tripId}/join`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-    } else {
-      alert("Failed to join the trip.");
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Successfully joined the trip!");
+        setTrips((prevTrips) =>
+          prevTrips.map((trip) =>
+            trip._id === tripId ? { ...trip, joined: true } : trip
+          )
+        );
+      } else {
+        alert(data.message || "Failed to join the trip.");
+      }
+    } catch (error) {
+      console.error("Join trip error:", error);
+      alert("An error occurred while joining the trip.");
     }
   };
 
   const handleUnjoin = async (tripId) => {
-    const response = await fetch(
-      `http://localhost:3000/api/trips/${tripId}/unjoin`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const data = await response.json();
-    if (data.success) {
-      alert("Du har lämnat resan.");
-      setTrips((prevTrips) =>
-        prevTrips.map((trip) =>
-          trip._id === tripId ? { ...trip, joined: false } : trip
-        )
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/trips/${tripId}/unjoin`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-    } else {
-      alert("Kunde inte lämna resan.");
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("You left the trip.");
+        setTrips((prevTrips) =>
+          prevTrips.map((trip) =>
+            trip._id === tripId ? { ...trip, joined: false } : trip
+          )
+        );
+      } else {
+        alert(data.message || "Failed to unjoin the trip.");
+      }
+    } catch (error) {
+      console.error("Unjoin trip error:", error);
+      alert("An error occurred while leaving the trip.");
     }
   };
 
-  if (errorMessage) {
-    return <div>{errorMessage}</div>;
-  }
+  const handleDelete = async (tripId) => {
+    if (!window.confirm("Are you sure you want to delete this trip?")) return;
 
-  const joinedTrips = trips.filter((trip) => trip.joined);
+    try {
+      const res = await fetch(`http://localhost:3000/api/trips/${tripId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      console.log("DELETE response:", data);
+
+      if (res.ok && data.success) {
+        alert("Trip deleted successfully.");
+        setTrips((prev) => prev.filter((trip) => trip._id !== tripId));
+      } else {
+        alert(data.message || "Failed to delete trip.");
+      }
+    } catch (err) {
+      console.error("Delete trip error:", err);
+      alert("An error occurred.");
+    }
+  };
 
   return (
     <div
@@ -96,6 +148,11 @@ export default function Trips() {
     >
       <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>All Trips</h1>
 
+      {errorMessage && (
+        <div style={{ color: "red", textAlign: "center" }}>{errorMessage}</div>
+      )}
+
+      {/* ✅ Buttons */}
       <div
         style={{
           display: "flex",
@@ -105,98 +162,83 @@ export default function Trips() {
         }}
       >
         <button onClick={() => navigate("/create-trip")}>Create Trip</button>
-        <button onClick={handleLogout}>Logout</button>
-        <button onClick={() => navigate(-1)} style={{ marginBottom: "1rem" }}>
-          ⬅️ Back
-        </button>
+        <button onClick={() => navigate(-1)}>⬅️ Back</button>
       </div>
 
-      {/* Joined Trips Section */}
-      {joinedTrips.length > 0 && (
-        <div style={{ marginBottom: "2rem" }}>
-          <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
-            My Joined Trips
-          </h2>
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            {joinedTrips.map((trip) => (
+      {/* ✅ Trip List */}
+      <ul style={{ listStyleType: "none", padding: 0 }}>
+        {trips.length === 0 ? (
+          <p>No trips available.</p>
+        ) : (
+          trips.map((trip) => {
+            const tripDate = new Date(trip.tripDate);
+            const today = new Date();
+            const isDriver = trip.driver?._id === userId;
+            const capacityLeft = trip.capacity - trip.passengers.length;
+            const noSeats = capacityLeft <= 0;
+
+            return (
               <li
-                key={`joined-${trip._id}`}
+                key={trip._id}
                 style={{
-                  border: "2px solid green",
+                  border: "1px solid #ccc",
                   borderRadius: "8px",
                   padding: "1rem",
                   marginBottom: "1rem",
-                  backgroundColor: "#eaffea",
+                  backgroundColor: "#f9f9f9",
                 }}
               >
                 <p>
                   <strong>{trip.startLocation}</strong> to{" "}
                   <strong>{trip.endLocation}</strong> on{" "}
-                  <strong>{trip.tripDate?.slice(0, 10)}</strong>
+                  <strong>{tripDate.toLocaleDateString()}</strong>
                 </p>
-                <p>Capacity: {trip.capacity}</p>
+                <p>Capacity left: {capacityLeft}</p>
+                <p>Passengers joined: {trip.passengers?.length || 0}</p>
                 <p>Driver: {trip.driver?.name || "Unknown"}</p>
-                <button
-                  style={{
-                    backgroundColor: "#ffdddd",
-                    border: "1px solid red",
-                    color: "red",
-                    padding: "0.4rem 1rem",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleUnjoin(trip._id)}
-                >
-                  ✅ Leave Trip
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
-      {/* All Trips List */}
-      <ul style={{ listStyleType: "none", padding: 0 }}>
-        {trips.length === 0 ? (
-          <p>No trips available.</p>
-        ) : (
-          trips.map((trip) => (
-            <li
-              key={trip._id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "1rem",
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <p>
-                <strong>{trip.startLocation}</strong> to{" "}
-                <strong>{trip.endLocation}</strong> on{" "}
-                <strong>{trip.tripDate?.slice(0, 10)}</strong>
-              </p>
-              <p>Capacity: {trip.capacity}</p>
-              <p>Driver: {trip.driver?.name || "Unknown"}</p>
-              {trip.joined ? (
-                <button
-                  style={{
-                    backgroundColor: "#ffdddd",
-                    border: "1px solid red",
-                    color: "red",
-                    padding: "0.4rem 1rem",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleUnjoin(trip._id)}
-                >
-                  ✅ Leave Trip
-                </button>
-              ) : (
-                <button onClick={() => handleJoin(trip._id)}>Join Trip</button>
-              )}
-            </li>
-          ))
+                {isDriver && <p>🚐 <strong style={{ color: "blue" }}>You are the driver</strong></p>}
+
+                {isDriver ? (
+                  <button
+                    onClick={() => handleDelete(trip._id)}
+                    style={{
+                      backgroundColor: "red",
+                      color: "white",
+                      padding: "0.5rem 1rem",
+                      marginTop: "0.5rem",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    🗑️ Delete Trip
+                  </button>
+                ) : trip.joined ? (
+                  <button
+                    onClick={() => handleUnjoin(trip._id)}
+                    style={{
+                      backgroundColor: "#ffe5e5",
+                      color: "#d00",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Leave Trip
+                  </button>
+                ) : tripDate < today ? (
+                  <p style={{ color: "gray", fontStyle: "italic" }}>
+                    ❌ Trip has expired
+                  </p>
+                ) : noSeats ? (
+                  <p style={{ color: "red", fontWeight: "bold" }}>
+                    🚫 No seats available
+                  </p>
+                ) : (
+                  <button onClick={() => handleJoin(trip._id)}>Join Trip</button>
+                )}
+              </li>
+            );
+          })
         )}
       </ul>
     </div>

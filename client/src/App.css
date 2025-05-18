@@ -36,3 +36,48 @@
     transform: rotate(360deg);
   }
 }
+
+
+.profile-page {
+  padding: 2rem;
+  text-align: left;
+  max-width: 800px;
+  margin: auto;
+}
+
+.trip-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.trip-card {
+  background-color: #f2f2f2;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Navigation styling */
+.navbar {
+  padding: 1rem;
+  background-color: #eee;
+  text-align: center;
+}
+
+.nav-link {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+.nav-button {
+  margin-left: 1rem;
+  padding: 0.4rem 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+

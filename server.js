@@ -2,26 +2,33 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user"); // flytta upp
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
-const app = express(); // Create Express app
+const app = express();
 
-// Connect to MongoDB
-connectDB().then(() => {
-  app.use(express.json()); // Middleware for parsing JSON
-  app.use(cors()); // Middleware for handling CORS
+// ✅ Aktivera CORS för att tillåta anrop från localhost:5000
+app.use(cors({ origin: "http://localhost:5000", credentials: true }));
 
-  // Set up API routes
-  app.use("/api/trips", tripRoutes); // Routes for trip-related operations
-  app.use("/api/auth", authRoutes); // Routes for authentication
+// ✅ Middleware för att läsa JSON i request-body
+app.use(express.json());
 
-  const PORT = process.env.PORT || 3000; // Use environment variable or default to port 3000
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+connectDB()
+  .then(() => {
+    // ✅ Alla routes här inne
+    app.use("/api/trips", tripRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/user", userRoutes);
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`✅ Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
   });
-}).catch((err) => {
-  console.error("MongoDB connection error:", err);
-});

@@ -25,7 +25,7 @@ function LoginPage() {
 
       if (data.token) {
         // If login is successful and a token is returned
-        localStorage.setItem("authToken", data.token); // Store the token in localStorage
+        localStorage.setItem("token", data.token); // Store the token in localStorage
 
         alert("Login successful!");
         // Navigate to the /trips page after successful login
