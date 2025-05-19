@@ -5,33 +5,44 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 
+// Load environment variables in development
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
 const app = express();
 
-connectDB().then(() => {
-  app.use(express.json());
-  app.use(cors());
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-  app.use("/api/trips", tripRoutes);
-  app.use("/api/auth", authRoutes);
+// Routes
+app.use("/api/trips", tripRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
-  if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "client/build")));
+// Serve static files in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "build")));
 
-    // ✅ FIXED wildcard route
-    app.get("*", (req, res) => {
-      res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-    });
-  }
-
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  // Fallback to index.html for SPA routing
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
   });
-}).catch((err) => {
-  console.error("MongoDB connection error:", err);
-});
+}
+
+// Connect to MongoDB and start server
+connectDB()
+  .then(() => {
+    const PORT = process.env.PORT || 3000;
+
+    app.listen(PORT, () => {
+      console.log(`✅ Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit if database connection fails
+  });
