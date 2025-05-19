@@ -39,8 +39,14 @@ const startServer = async () => {
     await connectDB();
     console.log("✅ MongoDB connected");
 
-    const PORT = process.env.PORT || 3000;
-    console.log("🌐 Render PORT:", PORT); // Helpful log
+    const PORT = process.env.PORT;
+
+    if (!PORT) {
+      console.error("❌ No PORT provided. Make sure you're using a Render Web Service.");
+      process.exit(1);
+    }
+
+    console.log("🌐 Using Render PORT:", PORT);
     app.listen(PORT, () => {
       console.log(`✅ Server is running on port ${PORT}`);
     });
@@ -50,4 +56,5 @@ const startServer = async () => {
   }
 };
 
+console.log("🚀 Starting server...");
 startServer();
