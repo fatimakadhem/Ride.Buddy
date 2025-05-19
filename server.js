@@ -29,9 +29,10 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));
 
   // Denna route fångar ALLT som inte matchar API och skickar till index.html
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
+ // app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+// });
+
 }
 
 // Starta server med MongoDB-koppling
