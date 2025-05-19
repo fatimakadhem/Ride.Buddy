@@ -8,9 +8,6 @@ export default function Trips() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
-  if (!token) {
-    return <p style={{ textAlign: "center", color: "red" }}>Not authenticated. Please log in.</p>;
-  }
 
   const getUserIdFromToken = () => {
     try {
@@ -22,14 +19,13 @@ export default function Trips() {
   };
 
   const userId = getUserIdFromToken();
-  if (!userId) {
-    return <p style={{ textAlign: "center", color: "red" }}>Invalid token. Please log in again.</p>;
-  }
 
   useEffect(() => {
+    if (!token || !userId) return;
+
     const fetchTrips = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/trips", {
+        const response = await fetch("/api/trips", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,13 +46,13 @@ export default function Trips() {
     };
 
     fetchTrips();
-  }, [token]);
+  }, [token, userId]);
 
   const handleJoin = async (tripId) => {
     if (!tripId) return alert("Invalid trip ID.");
 
     try {
-      const response = await fetch(`http://localhost:3000/api/trips/${tripId}/join`, {
+      const response = await fetch(`/api/trips/${tripId}/join`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -85,7 +81,7 @@ export default function Trips() {
     if (!tripId) return alert("Invalid trip ID.");
 
     try {
-      const response = await fetch(`http://localhost:3000/api/trips/${tripId}/unjoin`, {
+      const response = await fetch(`/api/trips/${tripId}/unjoin`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,7 +111,7 @@ export default function Trips() {
     if (!window.confirm("Are you sure you want to delete this trip?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/trips/${tripId}`, {
+      const res = await fetch(`/api/trips/${tripId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -134,6 +130,15 @@ export default function Trips() {
       alert("An error occurred.");
     }
   };
+
+  // UI rendering after all hooks
+  if (!token) {
+    return <p style={{ textAlign: "center", color: "red" }}>Not authenticated. Please log in.</p>;
+  }
+
+  if (!userId) {
+    return <p style={{ textAlign: "center", color: "red" }}>Invalid token. Please log in again.</p>;
+  }
 
   return (
     <div className="page-content">
