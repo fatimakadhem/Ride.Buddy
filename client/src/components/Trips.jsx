@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css"; // så du får med .page-content m.m.
+import "../App.css";
 
 export default function Trips() {
   const [trips, setTrips] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
+  if (!token) {
+    return <p style={{ textAlign: "center", color: "red" }}>Not authenticated. Please log in.</p>;
+  }
+
+  const getUserIdFromToken = () => {
+    try {
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      return decoded.id;
+    } catch {
+      return null;
+    }
+  };
+
+  const userId = getUserIdFromToken();
+  if (!userId) {
+    return <p style={{ textAlign: "center", color: "red" }}>Invalid token. Please log in again.</p>;
+  }
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -32,20 +50,11 @@ export default function Trips() {
     };
 
     fetchTrips();
-  }, []);
-
-  const getUserIdFromToken = () => {
-    try {
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      return decoded.id;
-    } catch {
-      return null;
-    }
-  };
-
-  const userId = getUserIdFromToken();
+  }, [token]);
 
   const handleJoin = async (tripId) => {
+    if (!tripId) return alert("Invalid trip ID.");
+
     try {
       const response = await fetch(`http://localhost:3000/api/trips/${tripId}/join`, {
         method: "PATCH",
@@ -73,6 +82,8 @@ export default function Trips() {
   };
 
   const handleUnjoin = async (tripId) => {
+    if (!tripId) return alert("Invalid trip ID.");
+
     try {
       const response = await fetch(`http://localhost:3000/api/trips/${tripId}/unjoin`, {
         method: "PATCH",
@@ -100,6 +111,7 @@ export default function Trips() {
   };
 
   const handleDelete = async (tripId) => {
+    if (!tripId) return alert("Invalid trip ID.");
     if (!window.confirm("Are you sure you want to delete this trip?")) return;
 
     try {
