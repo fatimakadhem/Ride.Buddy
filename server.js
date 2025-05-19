@@ -1,34 +1,38 @@
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path");
+const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
-const path = require("path"); // ✅ ADD THIS LINE
 
-dotenv.config(); // Load environment variables from .env file
+// ✅ Load environment variables (only in development)
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
-const app = express(); // Create Express app
+const app = express();
 
-// Connect to MongoDB
+// ✅ Connect to MongoDB
 connectDB().then(() => {
-  app.use(express.json()); // Middleware for parsing JSON
-  app.use(cors()); // Middleware for handling CORS
+  app.use(express.json());
+  app.use(cors());
 
-  // Set up API routes
-  app.use("/api/trips", tripRoutes); // Routes for trip-related operations
-  app.use("/api/auth", authRoutes); // Routes for authentication
+  // ✅ API routes
+  app.use("/api/trips", tripRoutes);
+  app.use("/api/auth", authRoutes);
 
-  // ✅ Serve static frontend in production
+  // ✅ Serve React frontend in production
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "client/build")));
 
-    app.get("*", (req, res) => {
+    // ✅ FIX for Express v5: use named wildcard
+    app.get("/:wildcard(*)", (req, res) => {
       res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
     });
   }
 
-  const PORT = process.env.PORT || 3000; // Use environment variable or default to port 3000
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
