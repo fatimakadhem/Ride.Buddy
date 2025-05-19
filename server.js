@@ -1,56 +1,27 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const path = require("path");
 const connectDB = require("./config/db");
-
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/user");
 
-dotenv.config();
+dotenv.config(); // Load environment variables from .env file
 
-const app = express();
+const app = express(); // Create Express app
 
-// ✅ CORS – tillåt både localhost och produktion
-const allowedOrigins = [
-  "http://localhost:5000",           // local React dev
-  "http://localhost:3000",           // local backend
-  "https://din-render-url.onrender.com" // <-- byt ut till din riktiga URL sen
-];
+// Connect to MongoDB
+connectDB().then(() => {
+  app.use(express.json()); // Middleware for parsing JSON
+  app.use(cors()); // Middleware for handling CORS
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+  // Set up API routes
+  app.use("/api/trips", tripRoutes); // Routes for trip-related operations
+  app.use("/api/auth", authRoutes); // Routes for authentication
 
-// ✅ Middleware
-app.use(express.json());
-
-// ✅ Routes
-app.use("/api/trips", tripRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-
-// ✅ Anslut till databas och kör servern
-connectDB()
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-
-    // ✅ Om i produktion – serva React frontend
-    if (process.env.NODE_ENV === "production") {
-      const buildPath = path.join(__dirname, "client", "build");
-      app.use(express.static(buildPath));
-
-      app.get("*", (req, res) => {
-        res.sendFile(path.join(buildPath, "index.html"));
-      });
-    }
-
-    app.listen(PORT, () => {
-      console.log(`✅ Server is running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+  const PORT = process.env.PORT || 3000; // Use environment variable or default to port 3000
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
+}).catch((err) => {
+  console.error("MongoDB connection error:", err);
+});
