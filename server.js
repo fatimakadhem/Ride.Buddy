@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
+const path = require("path"); // ✅ ADD THIS LINE
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -17,6 +18,15 @@ connectDB().then(() => {
   // Set up API routes
   app.use("/api/trips", tripRoutes); // Routes for trip-related operations
   app.use("/api/auth", authRoutes); // Routes for authentication
+
+  // ✅ Serve static frontend in production
+  if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "client/build")));
+
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    });
+  }
 
   const PORT = process.env.PORT || 3000; // Use environment variable or default to port 3000
   app.listen(PORT, () => {
