@@ -1,31 +1,219 @@
-.App {
+/* === Grundinställningar === */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #eef2f5;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1, h2 {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
   text-align: center;
+  margin: 20px 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* === App container === */
+.App {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: #f5f8fa;
+  min-height: 100vh;
+  text-align: center;
+  padding: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+/* === Välkomstbox === */
+.welcome-container {
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 450px;
+  margin-top: 50px;
+}
+
+.welcome-container h1 {
+  font-size: 36px;
+  color: #4A90E2;
+}
+
+.welcome-container p {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+/* === Toppnavigering (ligger högst upp) === */
+.top-navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 15px 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.top-navbar .nav-link {
+  text-decoration: none;
+  color: #4A4A4A;
+  font-weight: bold;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.top-navbar .nav-link:hover {
+  color: #357ABD;
+}
+
+.top-navbar .logout-btn {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.top-navbar .logout-btn:hover {
+  background-color: #357ABD;
+}
+
+/* === Innehåll under navbar === */
+.page-content {
+  margin-top: 120px; /* 👈 öka denna tills inget döljs */
+  padding: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: Arial, sans-serif;
+}
+
+/* === Knappar === */
+button {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  width: auto;
+  margin: 0.5rem;
+}
+
+button:hover {
+  background-color: #357ABD;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 5px #357ABD;
+}
+
+/* === Formulär === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+input[type="email"],
+input[type="password"] {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  width: 100%;
+}
+
+input:focus {
+  border-color: #4A90E2;
+  outline: none;
+}
+
+/* === Länkar === */
+a {
+  text-decoration: none;
+  color: #4A90E2;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+a:hover {
+  color: #357ABD;
+}
+
+/* === Triplist === */
+.trip-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.trip-card {
+  background-color: #ffffff;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.leave-btn {
+  background-color: #ffe5e5;
+  color: #d00;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.expired {
+  color: gray;
+  font-style: italic;
+}
+
+.no-seats {
+  color: red;
+  font-weight: bold;
+}
+
+/* === Profil === */
+.profile-page {
+  padding: 2rem;
+  text-align: left;
+  max-width: 800px;
+  margin: auto;
+}
+
+/* === App-logo (om används) === */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
 }
 
 @keyframes App-logo-spin {
@@ -37,47 +225,37 @@
   }
 }
 
-
-.profile-page {
-  padding: 2rem;
-  text-align: left;
-  max-width: 800px;
-  margin: auto;
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
-.trip-list {
-  list-style-type: none;
-  padding: 0;
-}
+/* === Media Queries för Mobil === */
+@media (max-width: 600px) {
+  .welcome-container {
+    width: 90%;
+    padding: 20px;
+  }
 
-.trip-card {
-  background-color: #f2f2f2;
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 8px;
-}
+  .top-navbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-/* Navigation styling */
-.navbar {
-  padding: 1rem;
-  background-color: #eee;
-  text-align: center;
-}
+  .top-navbar .nav-link,
+  .top-navbar .logout-btn {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
 
-.nav-link {
-  margin: 0 1rem;
-  text-decoration: none;
-  color: black;
-  font-weight: bold;
-}
+  button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
 
-.nav-button {
-  margin-left: 1rem;
-  padding: 0.4rem 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: transparent;
-  border: 1px solid #333;
-  border-radius: 4px;
+  .profile-page {
+    padding: 1rem;
+  }
 }
 

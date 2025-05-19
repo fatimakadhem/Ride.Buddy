@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "../App.css"; // så du får med .page-content m.m.
 
 export default function Trips() {
   const [trips, setTrips] = useState([]);
@@ -20,13 +21,8 @@ export default function Trips() {
 
         const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch trips");
-        }
-
-        if (!Array.isArray(data)) {
-          throw new Error("Trips data is not a valid array");
-        }
+        if (!response.ok) throw new Error(data.message || "Failed to fetch trips");
+        if (!Array.isArray(data)) throw new Error("Trips data is not a valid array");
 
         setTrips(data);
       } catch (error) {
@@ -42,7 +38,7 @@ export default function Trips() {
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
       return decoded.id;
-    } catch (err) {
+    } catch {
       return null;
     }
   };
@@ -51,19 +47,15 @@ export default function Trips() {
 
   const handleJoin = async (tripId) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/trips/${tripId}/join`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:3000/api/trips/${tripId}/join`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-
       if (data.success) {
         alert("Successfully joined the trip!");
         setTrips((prevTrips) =>
@@ -82,19 +74,15 @@ export default function Trips() {
 
   const handleUnjoin = async (tripId) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/trips/${tripId}/unjoin`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:3000/api/trips/${tripId}/unjoin`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-
       if (data.success) {
         alert("You left the trip.");
         setTrips((prevTrips) =>
@@ -123,8 +111,6 @@ export default function Trips() {
       });
 
       const data = await res.json();
-      console.log("DELETE response:", data);
-
       if (res.ok && data.success) {
         alert("Trip deleted successfully.");
         setTrips((prev) => prev.filter((trip) => trip._id !== tripId));
@@ -138,35 +124,19 @@ export default function Trips() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "700px",
-        margin: "0 auto",
-        padding: "2rem",
-        fontFamily: "Arial",
-      }}
-    >
-      <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>All Trips</h1>
+    <div className="page-content">
+      <h1 className="page-title">All Trips</h1>
 
       {errorMessage && (
-        <div style={{ color: "red", textAlign: "center" }}>{errorMessage}</div>
+        <div className="error-message">{errorMessage}</div>
       )}
 
-      {/* ✅ Buttons */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
+      <div className="trip-controls">
         <button onClick={() => navigate("/create-trip")}>Create Trip</button>
         <button onClick={() => navigate(-1)}>⬅️ Back</button>
       </div>
 
-      {/* ✅ Trip List */}
-      <ul style={{ listStyleType: "none", padding: 0 }}>
+      <ul className="trip-list">
         {trips.length === 0 ? (
           <p>No trips available.</p>
         ) : (
@@ -178,16 +148,7 @@ export default function Trips() {
             const noSeats = capacityLeft <= 0;
 
             return (
-              <li
-                key={trip._id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "1rem",
-                  marginBottom: "1rem",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
+              <li key={trip._id} className="trip-card">
                 <p>
                   <strong>{trip.startLocation}</strong> to{" "}
                   <strong>{trip.endLocation}</strong> on{" "}
@@ -197,42 +158,22 @@ export default function Trips() {
                 <p>Passengers joined: {trip.passengers?.length || 0}</p>
                 <p>Driver: {trip.driver?.name || "Unknown"}</p>
 
-                {isDriver && <p>🚐 <strong style={{ color: "blue" }}>You are the driver</strong></p>}
+                {isDriver && (
+                  <p>🚐 <strong style={{ color: "blue" }}>You are the driver</strong></p>
+                )}
 
                 {isDriver ? (
-                  <button
-                    onClick={() => handleDelete(trip._id)}
-                    style={{
-                      backgroundColor: "red",
-                      color: "white",
-                      padding: "0.5rem 1rem",
-                      marginTop: "0.5rem",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <button className="delete-btn" onClick={() => handleDelete(trip._id)}>
                     🗑️ Delete Trip
                   </button>
                 ) : trip.joined ? (
-                  <button
-                    onClick={() => handleUnjoin(trip._id)}
-                    style={{
-                      backgroundColor: "#ffe5e5",
-                      color: "#d00",
-                      fontWeight: "bold",
-                    }}
-                  >
+                  <button className="leave-btn" onClick={() => handleUnjoin(trip._id)}>
                     Leave Trip
                   </button>
                 ) : tripDate < today ? (
-                  <p style={{ color: "gray", fontStyle: "italic" }}>
-                    ❌ Trip has expired
-                  </p>
+                  <p className="expired">❌ Trip has expired</p>
                 ) : noSeats ? (
-                  <p style={{ color: "red", fontWeight: "bold" }}>
-                    🚫 No seats available
-                  </p>
+                  <p className="no-seats">🚫 No seats available</p>
                 ) : (
                   <button onClick={() => handleJoin(trip._id)}>Join Trip</button>
                 )}

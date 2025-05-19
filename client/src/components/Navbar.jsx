@@ -1,15 +1,13 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import "../App.css"; // Eller separat CSS om du har det
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem("token");
 
-  // List of paths where navbar should be hidden
   const hideNavbarOn = ["/", "/login", "/register"];
-
-  // ❌ Don't render Navbar on these pages
   if (!token || hideNavbarOn.includes(location.pathname)) {
     return null;
   }
@@ -20,12 +18,13 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="top-navbar">
       <Link to="/profile" className="nav-link">My Profile</Link>
       <Link to="/trips" className="nav-link">View Trips</Link>
-      <button onClick={handleLogout} className="nav-button">Logout</button>
+      <button onClick={handleLogout} className="logout-btn">Logout</button>
     </nav>
   );
 }
 
 export default Navbar;
+
