@@ -6,7 +6,7 @@ const connectDB = require("./config/db");
 const tripRoutes = require("./routes/trips");
 const authRoutes = require("./routes/auth");
 
-// ✅ Load environment variables (only in development)
+// ✅ Load environment variables (only in dev)
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
@@ -22,12 +22,12 @@ connectDB().then(() => {
   app.use("/api/trips", tripRoutes);
   app.use("/api/auth", authRoutes);
 
-  // ✅ Serve React frontend in production
+  // ✅ Serve frontend
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "client/build")));
 
-    // ✅ FIX for Express v5: use named wildcard
-    app.get("/:wildcard(*)", (req, res) => {
+    // ✅ Final working wildcard route for React (safe with Express v5)
+    app.get("/*", (req, res) => {
       res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
     });
   }
