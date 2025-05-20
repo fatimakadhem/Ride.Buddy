@@ -1,3 +1,4 @@
+import BASE_URL from "../config"; // lägg detta högst upp
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -25,14 +26,14 @@ export default function CreateTrip() {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/api/trips", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ FIXED here
-        },
-        body: JSON.stringify(tripData),
-      });
+      const response = await fetch(`${BASE_URL}/api/trips`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+  body: JSON.stringify(tripData),
+});
 
       const result = await response.json();
       if (response.ok) {
