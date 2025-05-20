@@ -16,7 +16,7 @@ function RegisterPage() {
     const userData = { name, email, password };
 
     try {
-const response = await fetch(`${BASE_URL}/api/auth/login`, {
+const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

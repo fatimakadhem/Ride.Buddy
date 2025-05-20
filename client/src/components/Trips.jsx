@@ -54,7 +54,7 @@ const response = await fetch(`${BASE_URL}/api/trips`, {
     if (!tripId) return alert("Invalid trip ID.");
 
     try {
-      const response = await fetch(`/api/trips/${tripId}/join`, {
+const response = await fetch(`${BASE_URL}/api/trips/${tripId}/join`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ const response = await fetch(`${BASE_URL}/api/trips`, {
     if (!tripId) return alert("Invalid trip ID.");
 
     try {
-      const response = await fetch(`/api/trips/${tripId}/unjoin`, {
+const response = await fetch(`${BASE_URL}/api/trips/${tripId}/unjoin`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -113,7 +113,7 @@ const response = await fetch(`${BASE_URL}/api/trips`, {
     if (!window.confirm("Are you sure you want to delete this trip?")) return;
 
     try {
-      const res = await fetch(`/api/trips/${tripId}`, {
+const res = await fetch(`${BASE_URL}/api/trips/${tripId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
