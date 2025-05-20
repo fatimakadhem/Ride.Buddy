@@ -1,3 +1,5 @@
+
+import BASE_URL from "../config"; // justera sökvägen om din config ligger annorlunda
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // To navigate after login
 
@@ -13,7 +15,7 @@ function LoginPage() {
     const userData = { email, password };
 
     try {
-const response = await fetch("/api/auth/login", {
+const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
