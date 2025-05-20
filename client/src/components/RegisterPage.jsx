@@ -1,3 +1,6 @@
+
+import BASE_URL from "../config"; // justera vägen om filen ligger i annan mapp
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; // Använd React Router för att länka mellan sidorna
 
@@ -13,7 +16,7 @@ function RegisterPage() {
     const userData = { name, email, password };
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
+const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

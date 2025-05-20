@@ -1,3 +1,5 @@
+import BASE_URL from "../config"; // justera vägen om filen ligger i annan mapp
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
@@ -25,7 +27,7 @@ export default function Trips() {
 
     const fetchTrips = async () => {
       try {
-        const response = await fetch("/api/trips", {
+const response = await fetch(`${BASE_URL}/api/trips`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

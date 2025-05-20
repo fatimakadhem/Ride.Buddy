@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BASE_URL from "../config"; // se till att sökvägen är rätt beroende på var du är
 
 const UserProfile = () => {
   const [createdTrips, setCreatedTrips] = useState([]);
@@ -11,7 +12,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/user/history", {
+const res = await fetch(`${BASE_URL}/api/user/history`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
